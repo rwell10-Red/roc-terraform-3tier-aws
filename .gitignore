@@ -1,0 +1,22 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# Kiro spec files
+.kiro/
+
+# Architecture diagram
+3-tier-aws-architecture.drawio
+
+# OS
+.DS_Store
+Thumbs.db

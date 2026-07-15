@@ -1,0 +1,234 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [uat, prod]
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: "1.15.8"
+  ROLE_ARN: arn:aws:iam::866934333672:role/roc-gh-actions-roc-cFormation1
+
+jobs:
+  # ===========================================================================
+  # DEV: Push to dev branch → deploy to dev environment
+  # ===========================================================================
+  dev-build:
+    name: "Dev - Build"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=dev/terraform.tfstate"
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+  dev-test:
+    name: "Dev - Test"
+    runs-on: ubuntu-latest
+    needs: dev-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=dev/terraform.tfstate"
+
+      - name: Terraform Plan
+        run: terraform plan -var-file="environments/dev.tfvars" -no-color
+
+  dev-deploy:
+    name: "Dev - Deploy"
+    runs-on: ubuntu-latest
+    needs: dev-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=dev/terraform.tfstate"
+
+      - name: Terraform Apply
+        run: terraform apply -var-file="environments/dev.tfvars" -auto-approve
+
+  # ===========================================================================
+  # UAT: PR from dev → uat branch → deploy to uat environment
+  # ===========================================================================
+  uat-build:
+    name: "UAT - Build"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'uat'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=uat/terraform.tfstate"
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+  uat-test:
+    name: "UAT - Test"
+    runs-on: ubuntu-latest
+    needs: uat-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=uat/terraform.tfstate"
+
+      - name: Terraform Plan
+        run: terraform plan -var-file="environments/uat.tfvars" -no-color
+
+  uat-deploy:
+    name: "UAT - Deploy"
+    runs-on: ubuntu-latest
+    needs: uat-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=uat/terraform.tfstate"
+
+      - name: Terraform Apply
+        run: terraform apply -var-file="environments/uat.tfvars" -auto-approve
+
+  # ===========================================================================
+  # PROD: PR from uat → prod branch → deploy to prod environment
+  # ===========================================================================
+  prod-build:
+    name: "Prod - Build"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'prod'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=prod/terraform.tfstate"
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+  prod-test:
+    name: "Prod - Test"
+    runs-on: ubuntu-latest
+    needs: prod-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=prod/terraform.tfstate"
+
+      - name: Terraform Plan
+        run: terraform plan -var-file="environments/prod.tfvars" -no-color
+
+  prod-deploy:
+    name: "Prod - Deploy"
+    runs-on: ubuntu-latest
+    needs: prod-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="key=prod/terraform.tfstate"
+
+      - name: Terraform Apply
+        run: terraform apply -var-file="environments/prod.tfvars" -auto-approve
