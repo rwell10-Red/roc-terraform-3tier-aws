@@ -16,42 +16,30 @@ permissions:
 
 env:
   TF_VERSION: "1.15.8"
-  ENVIRONMENT: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
 
 jobs:
   build:
-    name: "Build - ${{ github.event_name == 'push' && 'dev' || github.base_ref }}"
+    name: Build
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Terraform Init
-        run: terraform init -backend-config="key=${{ env.ENVIRONMENT }}/terraform.tfstate"
 
       - name: Terraform Format
         run: terraform fmt -check
 
-      - name: Terraform Validate
-        run: terraform validate
-
   test:
-    name: "Test - ${{ github.event_name == 'push' && 'dev' || github.base_ref }}"
+    name: Test
     needs: build
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -68,16 +56,20 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init -backend-config="key=${{ env.ENVIRONMENT }}/terraform.tfstate"
+        run: terraform init -backend-config="key=${{ vars.ENVIRONMENT }}/terraform.tfstate"
+
+      - name: Terraform Validate
+        run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file="environments/${{ env.ENVIRONMENT }}.tfvars" -no-color
+        run: terraform plan -var-file="environments/${{ vars.ENVIRONMENT }}.tfvars" -no-color
 
   deploy:
-    name: "Deploy - ${{ github.event_name == 'push' && 'dev' || github.base_ref }}"
+    name: Deploy
     needs: test
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -94,7 +86,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init -backend-config="key=${{ env.ENVIRONMENT }}/terraform.tfstate"
+        run: terraform init -backend-config="key=${{ vars.ENVIRONMENT }}/terraform.tfstate"
 
       - name: Terraform Apply
-        run: terraform apply -var-file="environments/${{ env.ENVIRONMENT }}.tfvars" -auto-approve
+        run: terraform apply -var-file="environments/${{ vars.ENVIRONMENT }}.tfvars" -auto-approve
