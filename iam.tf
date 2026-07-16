@@ -82,3 +82,29 @@ resource "aws_iam_role_policy_attachment" "backend_additional" {
   role       = aws_iam_role.backend.name
   policy_arn = var.be_additional_policy_arns[count.index]
 }
+
+# -----------------------------------------------------------------------------
+# RDS Enhanced Monitoring Role
+# -----------------------------------------------------------------------------
+
+resource "aws_iam_role" "rds_monitoring" {
+  name               = "${local.name_prefix}-rds-monitoring-role-${local.suffix}"
+  assume_role_policy = data.aws_iam_policy_document.rds_monitoring_assume_role.json
+}
+
+data "aws_iam_policy_document" "rds_monitoring_assume_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["monitoring.rds.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "rds_monitoring" {
+  role       = aws_iam_role.rds_monitoring.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+}

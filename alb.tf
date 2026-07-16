@@ -7,11 +7,13 @@
 # -----------------------------------------------------------------------------
 
 resource "aws_lb" "frontend" {
-  name               = "${var.environment}-roc-3t-alb-${local.suffix}"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.frontend.id]
-  subnets            = [aws_subnet.public.id, aws_subnet.public_2.id]
+  name                       = "${var.environment}-roc-3t-alb-${local.suffix}"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.frontend.id]
+  subnets                    = [aws_subnet.public.id, aws_subnet.public_2.id]
+  drop_invalid_header_fields = true
+  enable_deletion_protection = true
 
   tags = {
     Name = "${local.name_prefix}-alb-${local.suffix}"
