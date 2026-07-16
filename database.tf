@@ -37,7 +37,7 @@ resource "aws_db_instance" "main" {
   kms_key_id          = var.db_kms_key_id != "" ? var.db_kms_key_id : null
 
   backup_retention_period = var.db_backup_retention_period
-  deletion_protection     = true
+  deletion_protection     = false
   skip_final_snapshot     = true
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
