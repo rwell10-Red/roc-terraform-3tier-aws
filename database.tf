@@ -28,8 +28,8 @@ resource "aws_db_instance" "main" {
   allocated_storage = var.db_allocated_storage
   port              = var.db_port
 
-  username                    = var.db_username
-  password                    = random_password.db_password.result
+  username                            = var.db_username
+  password                            = random_password.db_password.result
   iam_database_authentication_enabled = true
 
   publicly_accessible = false
