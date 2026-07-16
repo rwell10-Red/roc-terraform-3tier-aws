@@ -51,6 +51,11 @@ jobs:
           quiet: true
           soft_fail: true
 
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   validate:
     name: Validate
     needs: lint
