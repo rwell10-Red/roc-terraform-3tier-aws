@@ -10,10 +10,6 @@ on:
       - uat
       - prod
 
-permissions:
-  id-token: write
-  contents: read
-
 env:
   TF_VERSION: "1.15.8"
 
@@ -22,6 +18,8 @@ jobs:
     name: Lint
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -65,6 +63,9 @@ jobs:
     needs: lint
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
     steps:
       - name: Checkout code
@@ -95,6 +96,9 @@ jobs:
     needs: validate
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
     steps:
       - name: Checkout code
