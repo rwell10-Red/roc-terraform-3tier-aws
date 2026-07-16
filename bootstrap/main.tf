@@ -22,6 +22,16 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable "project" {
+  type    = string
+  default = "3tier"
+}
+
+variable "owner" {
+  type    = string
+  default = "andre"
+}
+
 # Random suffix for globally unique bucket name
 resource "random_string" "bucket_suffix" {
   length  = 4
@@ -30,7 +40,7 @@ resource "random_string" "bucket_suffix" {
 }
 
 locals {
-  bucket_name = "roc-terraform-3tier-state-${random_string.bucket_suffix.result}"
+  bucket_name = "${var.project}-terraform-state-${random_string.bucket_suffix.result}"
 }
 
 # =============================================================================
@@ -43,8 +53,8 @@ resource "aws_s3_bucket" "state" {
   tags = {
     Name        = local.bucket_name
     Purpose     = "Terraform remote state"
-    Project     = "3tier"
-    Owner       = "andre"
+    Project     = var.project
+    Owner       = var.owner
   }
 }
 

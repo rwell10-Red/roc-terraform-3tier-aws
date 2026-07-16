@@ -87,7 +87,8 @@ locals {
   availability_zone_2 = data.aws_availability_zones.available.names[1]
   ami_id              = data.aws_ami.amazon_linux.id
 
-  # Naming convention: {env}-roc-terraform-3tier-{resource}-{suffix}
-  name_prefix = "${var.environment}-roc-terraform-3tier"
+  # Naming convention: {env}-{project}-{resource}-{suffix}
+  name_prefix = "${var.environment}-${var.project}"
+  short_prefix = "${var.environment}-${substr(var.project, 0, 4)}"
   suffix      = random_string.suffix.result
 }
