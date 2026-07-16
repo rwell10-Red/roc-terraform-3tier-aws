@@ -18,8 +18,8 @@ env:
   TF_VERSION: "1.15.8"
 
 jobs:
-  build:
-    name: Build
+  lint:
+    name: Lint
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
@@ -34,9 +34,26 @@ jobs:
       - name: Terraform Format
         run: terraform fmt -check
 
-  test:
-    name: Test
-    needs: build
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint -f compact
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          quiet: true
+          soft_fail: true
+
+  validate:
+    name: Validate
+    needs: lint
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
@@ -58,15 +75,6 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="key=${{ vars.ENVIRONMENT }}/terraform.tfstate"
 
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
-
-      - name: Init TFLint
-        run: tflint --init
-
-      - name: Run TFLint
-        run: tflint -f compact
-
       - name: Terraform Validate
         run: terraform validate
 
@@ -75,7 +83,7 @@ jobs:
 
   deploy:
     name: Deploy
-    needs: test
+    needs: validate
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
