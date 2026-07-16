@@ -13,6 +13,10 @@ resource "aws_launch_template" "frontend" {
 
   user_data = var.fe_user_data != "" ? base64encode(var.fe_user_data) : null
 
+  metadata_options {
+    http_tokens = "required"
+  }
+
   network_interfaces {
     associate_public_ip_address = true
     security_groups             = [aws_security_group.frontend.id]

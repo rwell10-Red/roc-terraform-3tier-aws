@@ -37,23 +37,43 @@ resource "aws_security_group_rule" "frontend_ingress_https" {
 }
 
 resource "aws_security_group_rule" "frontend_ingress_ssh" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
+  type                     = "ingress"
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eice.id
+  security_group_id        = aws_security_group.frontend.id
+  description              = "Allow SSH from EICE SG"
+}
+
+resource "aws_security_group_rule" "frontend_egress_https" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.frontend.id
-  description       = "Allow SSH from anywhere"
+  description       = "Allow HTTPS outbound (updates, APIs)"
 }
 
-resource "aws_security_group_rule" "frontend_egress_all" {
+resource "aws_security_group_rule" "frontend_egress_http" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.frontend.id
-  description       = "Allow all outbound traffic"
+  description       = "Allow HTTP outbound (package repos)"
+}
+
+resource "aws_security_group_rule" "frontend_egress_to_backend" {
+  type                     = "egress"
+  from_port                = var.app_port
+  to_port                  = var.app_port
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.backend.id
+  security_group_id        = aws_security_group.frontend.id
+  description              = "Allow outbound to backend app port"
 }
 
 # -----------------------------------------------------------------------------
@@ -90,14 +110,34 @@ resource "aws_security_group_rule" "backend_ingress_ssh" {
   description              = "Allow SSH from EICE SG"
 }
 
-resource "aws_security_group_rule" "backend_egress_all" {
+resource "aws_security_group_rule" "backend_egress_https" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.backend.id
-  description       = "Allow all outbound traffic"
+  description       = "Allow HTTPS outbound (updates, APIs)"
+}
+
+resource "aws_security_group_rule" "backend_egress_http" {
+  type              = "egress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.backend.id
+  description       = "Allow HTTP outbound (package repos)"
+}
+
+resource "aws_security_group_rule" "backend_egress_to_db" {
+  type                     = "egress"
+  from_port                = var.db_port
+  to_port                  = var.db_port
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.database.id
+  security_group_id        = aws_security_group.backend.id
+  description              = "Allow outbound to database port"
 }
 
 # -----------------------------------------------------------------------------
@@ -145,7 +185,7 @@ resource "aws_security_group_rule" "eice_egress_ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = [var.private_app_subnet_cidr]
+  cidr_blocks       = [var.private_app_subnet_cidr, var.public_subnet_cidr]
   security_group_id = aws_security_group.eice.id
-  description       = "Allow outbound SSH to private app subnet"
+  description       = "Allow outbound SSH to app and public subnets"
 }
