@@ -2,12 +2,6 @@
 # Application Load Balancer
 # =============================================================================
 
-variable "acm_certificate_arn" {
-  type        = string
-  description = "ARN of the ACM certificate for HTTPS listener. Required for HTTPS termination."
-  default     = ""
-}
-
 # -----------------------------------------------------------------------------
 # ALB
 # -----------------------------------------------------------------------------

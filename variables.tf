@@ -275,18 +275,6 @@ variable "scale_out_threshold" {
   default     = 70
 }
 
-variable "scale_in_threshold" {
-  type        = number
-  description = "CPU utilization percentage to trigger scale-in"
-  default     = 30
-}
-
-variable "scaling_cooldown" {
-  type        = number
-  description = "Cooldown period in seconds between scaling actions"
-  default     = 300
-}
-
 # =============================================================================
 # Tag Variables
 # =============================================================================
