@@ -32,8 +32,6 @@ db_backup_retention_period = 35
 
 # Scaling
 scale_out_threshold = 60
-scale_in_threshold  = 25
-scaling_cooldown    = 300
 
 # Ports
 app_port = 5000
