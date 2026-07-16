@@ -57,9 +57,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.terraform.provider.aws.version=5.100.0
 
   validate:
     name: Validate
