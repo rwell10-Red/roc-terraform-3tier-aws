@@ -1,0 +1,7 @@
+skip-check:
+  - CKV_AWS_130  # Public subnets require map_public_ip_on_launch for ALB and frontend instances in public tier
+  - CKV_AWS_88   # Frontend instances in public subnet need public IPs for internet-routed traffic via IGW
+  - CKV_AWS_260  # Internet-facing ALB must accept HTTP on port 80 from anywhere by design
+  - CKV_AWS_157  # Multi-AZ RDS deferred - cost consideration for dev environment
+  - CKV_AWS_2    # HTTPS listener requires ACM certificate and domain - ready to enable when available
+  - CKV_AWS_91   # ALB access logs require dedicated S3 bucket - planned as follow-up
