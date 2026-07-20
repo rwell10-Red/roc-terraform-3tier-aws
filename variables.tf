@@ -132,12 +132,6 @@ variable "fe_desired_capacity" {
   }
 }
 
-variable "fe_user_data" {
-  type        = string
-  description = "User data script for front-end instances"
-  default     = ""
-}
-
 # =============================================================================
 # Back-End Variables
 # =============================================================================
@@ -179,12 +173,6 @@ variable "be_desired_capacity" {
     condition     = var.be_desired_capacity >= var.be_min_size && var.be_desired_capacity <= var.be_max_size
     error_message = "Back-end desired capacity must be between minimum and maximum capacity."
   }
-}
-
-variable "be_user_data" {
-  type        = string
-  description = "User data script for back-end instances"
-  default     = ""
 }
 
 variable "app_port" {

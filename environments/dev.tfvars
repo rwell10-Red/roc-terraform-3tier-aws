@@ -19,10 +19,10 @@ private_db_subnet_cidr_2 = "10.0.5.0/24"
 fe_instance_type    = "t2.micro"
 be_instance_type    = "t2.micro"
 fe_min_size         = 1
-fe_max_size         = 2
+fe_max_size         = 1
 fe_desired_capacity = 1
 be_min_size         = 1
-be_max_size         = 2
+be_max_size         = 1
 be_desired_capacity = 1
 
 # Database

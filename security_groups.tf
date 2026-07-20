@@ -97,7 +97,7 @@ resource "aws_security_group_rule" "backend_ingress_app" {
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.frontend.id
   security_group_id        = aws_security_group.backend.id
-  description              = "Allow app port from front-end SG"
+  description              = "Allow app port from ALB/front-end SG"
 }
 
 resource "aws_security_group_rule" "backend_ingress_ssh" {

@@ -1,0 +1,15 @@
+{
+  "name": "roc-3tier-backend",
+  "version": "1.0.0",
+  "description": "Backend API for 3-tier AWS architecture",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-rds": "3.712.0",
+    "@aws-sdk/rds-signer": "3.712.0",
+    "express": "4.21.2",
+    "mysql2": "3.12.0"
+  }
+}
