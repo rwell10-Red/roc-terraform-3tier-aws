@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - dev
-  pull_request:
-    types: [closed]
-    branches:
-      - uat
-      - prod
 
 env:
   TF_VERSION: "1.15.8"
@@ -16,7 +11,7 @@ env:
 jobs:
   lint:
     name: Lint
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -61,12 +56,12 @@ jobs:
   validate:
     name: Validate
     needs: lint
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-    environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
+    environment: ${{ github.ref_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -94,12 +89,12 @@ jobs:
   deploy:
     name: Deploy
     needs: validate
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-    environment: ${{ github.event_name == 'push' && 'dev' || github.base_ref }}
+    environment: ${{ github.ref_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
