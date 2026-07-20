@@ -51,10 +51,10 @@ resource "aws_s3_bucket" "state" {
   bucket = local.bucket_name
 
   tags = {
-    Name        = local.bucket_name
-    Purpose     = "Terraform remote state"
-    Project     = var.project
-    Owner       = var.owner
+    Name    = local.bucket_name
+    Purpose = "Terraform remote state"
+    Project = var.project
+    Owner   = var.owner
   }
 }
 

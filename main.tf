@@ -88,7 +88,7 @@ locals {
   ami_id              = data.aws_ami.amazon_linux.id
 
   # Naming convention: {env}-{project}-{resource}-{suffix}
-  name_prefix = "${var.environment}-${var.project}"
+  name_prefix  = "${var.environment}-${var.project}"
   short_prefix = "${var.environment}-${substr(var.project, 0, 4)}"
-  suffix      = random_string.suffix.result
+  suffix       = random_string.suffix.result
 }
