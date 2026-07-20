@@ -80,7 +80,7 @@ app.get('/api/ping', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Backend running on port ${PORT}`);
+  console.log(`Backend running on port $${PORT}`);
 });
 APPEOF
 
