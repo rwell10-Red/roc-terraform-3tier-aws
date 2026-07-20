@@ -108,3 +108,44 @@ resource "aws_iam_role_policy_attachment" "rds_monitoring" {
   role       = aws_iam_role.rds_monitoring.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }
+
+# -----------------------------------------------------------------------------
+# VPC Flow Log IAM Role
+# -----------------------------------------------------------------------------
+
+resource "aws_iam_role" "vpc_flow_log" {
+  name               = "${local.name_prefix}-vpc-flow-log-role-${local.suffix}"
+  assume_role_policy = data.aws_iam_policy_document.vpc_flow_log_assume_role.json
+}
+
+data "aws_iam_policy_document" "vpc_flow_log_assume_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["vpc-flow-logs.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "vpc_flow_log_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "vpc_flow_log" {
+  name   = "${local.name_prefix}-vpc-flow-log-policy-${local.suffix}"
+  role   = aws_iam_role.vpc_flow_log.id
+  policy = data.aws_iam_policy_document.vpc_flow_log_policy.json
+}
