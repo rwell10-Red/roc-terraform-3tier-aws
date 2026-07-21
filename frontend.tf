@@ -11,7 +11,7 @@ resource "aws_launch_template" "frontend" {
   image_id      = local.ami_id
   instance_type = var.fe_instance_type
 
-  user_data = var.fe_user_data != "" ? base64encode(var.fe_user_data) : null
+  user_data = base64encode(file("${path.module}/scripts/frontend-userdata.sh"))
 
   metadata_options {
     http_tokens = "required"
@@ -54,6 +54,8 @@ resource "aws_autoscaling_group" "frontend" {
   health_check_type         = "ELB"
   health_check_grace_period = 300
 
+  target_group_arns = [aws_lb_target_group.frontend.arn]
+
   launch_template {
     id      = aws_launch_template.frontend.id
     version = "$Latest"
@@ -64,15 +66,6 @@ resource "aws_autoscaling_group" "frontend" {
     value               = "${local.name_prefix}-frontend"
     propagate_at_launch = true
   }
-}
-
-# -----------------------------------------------------------------------------
-# ASG Attachment to ALB Target Group
-# -----------------------------------------------------------------------------
-
-resource "aws_autoscaling_attachment" "frontend" {
-  autoscaling_group_name = aws_autoscaling_group.frontend.name
-  lb_target_group_arn    = aws_lb_target_group.frontend.arn
 }
 
 # -----------------------------------------------------------------------------

@@ -12,6 +12,15 @@ resource "aws_vpc" "main" {
   }
 }
 
+# Restrict the default security group to deny all traffic
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${local.name_prefix}-default-sg-restricted-${local.suffix}"
+  }
+}
+
 # =============================================================================
 # Subnets
 # =============================================================================
@@ -171,4 +180,29 @@ resource "aws_route_table_association" "private_db" {
 resource "aws_route_table_association" "private_db_2" {
   subnet_id      = aws_subnet.private_db_2.id
   route_table_id = aws_route_table.private_db.id
+}
+
+# =============================================================================
+# VPC Flow Logs
+# =============================================================================
+
+resource "aws_flow_log" "main" {
+  vpc_id               = aws_vpc.main.id
+  traffic_type         = "ALL"
+  iam_role_arn         = aws_iam_role.vpc_flow_log.arn
+  log_destination      = aws_cloudwatch_log_group.vpc_flow_log.arn
+  log_destination_type = "cloud-watch-logs"
+
+  tags = {
+    Name = "${local.name_prefix}-vpc-flow-log-${local.suffix}"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "vpc_flow_log" {
+  name              = "/aws/vpc/flow-log/${local.name_prefix}-${local.suffix}"
+  retention_in_days = 30
+
+  tags = {
+    Name = "${local.name_prefix}-vpc-flow-log-group-${local.suffix}"
+  }
 }

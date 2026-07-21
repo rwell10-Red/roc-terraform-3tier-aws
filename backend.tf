@@ -11,7 +11,12 @@ resource "aws_launch_template" "backend" {
   image_id      = local.ami_id
   instance_type = var.be_instance_type
 
-  user_data = var.be_user_data != "" ? base64encode(var.be_user_data) : null
+  user_data = base64encode(templatefile("${path.module}/scripts/backend-userdata.sh", {
+    DB_HOST    = aws_db_instance.main.address
+    DB_PORT    = var.db_port
+    DB_USER    = var.db_username
+    AWS_REGION = var.region
+  }))
 
   metadata_options {
     http_tokens = "required"
@@ -51,8 +56,10 @@ resource "aws_autoscaling_group" "backend" {
   max_size         = var.be_max_size
   desired_capacity = var.be_desired_capacity
 
-  health_check_type         = "EC2"
+  health_check_type         = "ELB"
   health_check_grace_period = 300
+
+  target_group_arns = [aws_lb_target_group.backend.arn]
 
   launch_template {
     id      = aws_launch_template.backend.id

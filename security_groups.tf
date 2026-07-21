@@ -97,7 +97,7 @@ resource "aws_security_group_rule" "backend_ingress_app" {
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.frontend.id
   security_group_id        = aws_security_group.backend.id
-  description              = "Allow app port from front-end SG"
+  description              = "Allow app port from ALB/front-end SG"
 }
 
 resource "aws_security_group_rule" "backend_ingress_ssh" {
@@ -180,12 +180,22 @@ resource "aws_security_group" "eice" {
   }
 }
 
-resource "aws_security_group_rule" "eice_egress_ssh" {
+resource "aws_security_group_rule" "eice_egress_ssh_backend" {
   type              = "egress"
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = [var.private_app_subnet_cidr, var.public_subnet_cidr]
+  cidr_blocks       = [var.private_app_subnet_cidr]
   security_group_id = aws_security_group.eice.id
-  description       = "Allow outbound SSH to app and public subnets"
+  description       = "Allow outbound SSH to private app subnet (backend)"
+}
+
+resource "aws_security_group_rule" "eice_egress_ssh_frontend" {
+  type              = "egress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = [var.public_subnet_cidr]
+  security_group_id = aws_security_group.eice.id
+  description       = "Allow outbound SSH to public subnet (frontend)"
 }
