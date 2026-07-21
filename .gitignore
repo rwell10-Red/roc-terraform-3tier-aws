@@ -21,3 +21,8 @@ override.tf.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Docs
+deploy-yml-explained.md
+business-cases.md
+.changeexplanation

@@ -1,0 +1,12 @@
+﻿{
+    "InstanceId": "i-0ff568ecbab6cb694",
+    "Timestamp": "2026-07-20T21:08:16+00:00",
+aws : 
+At line:1 char:1
++ aws ec2 get-console-output --instance-id i-0ff568ecbab6cb694 --region ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+aws: [ERROR]: 'charmap' codec can't encode character '\u2192' in position 15624: character maps to <undefined>
+    "Output": 
