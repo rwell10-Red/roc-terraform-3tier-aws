@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Ensure EC2 Instance Connect agent is installed
+dnf install -y ec2-instance-connect
+
 # Install Node.js 20 LTS
 dnf install -y nodejs npm
 

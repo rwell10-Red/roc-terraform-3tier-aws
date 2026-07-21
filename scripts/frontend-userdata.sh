@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Ensure EC2 Instance Connect agent is installed
+dnf install -y ec2-instance-connect
+
 # Install Nginx
 dnf install -y nginx
 
