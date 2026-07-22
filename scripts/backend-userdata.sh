@@ -88,7 +88,7 @@ app.listen(PORT, '0.0.0.0', () => {
 APPEOF
 
 # Install dependencies
-npm install --production
+npm install --production --ignore-scripts
 
 # Create environment file
 cat > /opt/app/.env << ENVEOF
