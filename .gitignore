@@ -26,3 +26,6 @@ Thumbs.db
 deploy-yml-explained.md
 business-cases.md
 .changeexplanation
+
+# Node modules
+app/backend/node_modules/
