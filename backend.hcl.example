@@ -1,0 +1,16 @@
+# Terraform S3 backend — partial configuration template
+#
+# Terraform does not allow variables inside the backend block, so these values
+# are supplied at init time instead of being hardcoded in main.tf.
+#
+# Usage:
+#   1. Copy this file to backend.hcl   (backend.hcl is gitignored)
+#   2. Fill in the bucket name output by the bootstrap/ module
+#   3. Run:  terraform init -backend-config=backend.hcl
+#
+# For per-environment state, override the key at init instead:
+#   terraform init -backend-config=backend.hcl -backend-config="key=dev/terraform.tfstate"
+
+bucket = "REPLACE_WITH_BOOTSTRAP_OUTPUT_BUCKET"
+key    = "terraform-3tier-aws/terraform.tfstate"
+region = "us-east-1"

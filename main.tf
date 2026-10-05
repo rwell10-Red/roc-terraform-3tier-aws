@@ -12,10 +12,13 @@ terraform {
     }
   }
 
+  # Partial backend configuration: bucket, key, and region are supplied at
+  # init time via -backend-config so no account/region-specific values are
+  # hardcoded in the repo. See README / backend.hcl.example.
+  #   terraform init -backend-config=backend.hcl
+  # (Terraform does not allow variables in the backend block, so partial
+  #  configuration is the supported way to keep these values out of code.)
   backend "s3" {
-    bucket       = "REPLACE_WITH_BOOTSTRAP_OUTPUT_BUCKET" # set to the bucket name output by the bootstrap/ module
-    key          = "terraform-3tier-aws/terraform.tfstate"
-    region       = "us-east-1"
     encrypt      = true
     use_lockfile = true
   }

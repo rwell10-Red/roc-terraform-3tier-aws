@@ -12,6 +12,9 @@ override.tf.json
 *_override.tf.json
 .terraform.lock.hcl
 
+# Real backend config (contains your bucket name) — keep the .example only
+backend.hcl
+
 # Kiro spec files
 .kiro/
 
