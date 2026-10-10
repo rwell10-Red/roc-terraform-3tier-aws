@@ -286,3 +286,13 @@ variable "owner" {
   type        = string
   description = "Owner of the resources for tagging"
 }
+
+# =============================================================================
+# Safety / Lifecycle
+# =============================================================================
+
+variable "enable_deletion_protection" {
+  type        = bool
+  description = "Enable deletion protection on the ALB and RDS instance. Keep true for production-like environments; set false in disposable envs (e.g. dev) to allow teardown."
+  default     = true
+}

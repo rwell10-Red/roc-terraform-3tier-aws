@@ -7,6 +7,9 @@ project     = "3tier"
 owner       = "andre"
 region      = "us-east-1"
 
+# Dev is disposable — allow teardown (prod/uat keep protection on via the default of true)
+enable_deletion_protection = false
+
 # Network
 vpc_cidr                 = "10.0.0.0/16"
 public_subnet_cidr       = "10.0.1.0/24"
