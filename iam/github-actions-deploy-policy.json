@@ -95,6 +95,8 @@
         "iam:CreateInstanceProfile",
         "iam:DeleteInstanceProfile",
         "iam:GetInstanceProfile",
+        "iam:TagInstanceProfile",
+        "iam:UntagInstanceProfile",
         "iam:AddRoleToInstanceProfile",
         "iam:RemoveRoleFromInstanceProfile",
         "iam:CreatePolicy",
@@ -138,6 +140,7 @@
         "StringEquals": {
           "iam:PassedToService": [
             "ec2.amazonaws.com",
+            "rds.amazonaws.com",
             "monitoring.rds.amazonaws.com",
             "vpc-flow-logs.amazonaws.com"
           ]
