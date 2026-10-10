@@ -102,6 +102,8 @@
         "iam:CreatePolicy",
         "iam:DeletePolicy",
         "iam:GetPolicy",
+        "iam:TagPolicy",
+        "iam:UntagPolicy",
         "iam:GetPolicyVersion",
         "iam:ListPolicyVersions",
         "iam:CreatePolicyVersion",
