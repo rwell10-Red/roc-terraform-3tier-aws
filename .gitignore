@@ -15,6 +15,10 @@ override.tf.json
 # Real backend config (contains your bucket name) — keep the .example only
 backend.hcl
 
+# Keep all markdown private EXCEPT README.md (the public portfolio front page)
+*.md
+!README.md
+
 # Kiro spec files
 .kiro/
 
