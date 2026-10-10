@@ -13,7 +13,7 @@ resource "aws_lb" "frontend" {
   security_groups            = [aws_security_group.frontend.id]
   subnets                    = [aws_subnet.public.id, aws_subnet.public_2.id]
   drop_invalid_header_fields = true
-  enable_deletion_protection = true
+  enable_deletion_protection = var.enable_deletion_protection
 
   tags = {
     Name = "${local.name_prefix}-alb-${local.suffix}"
