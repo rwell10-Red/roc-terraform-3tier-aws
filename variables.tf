@@ -232,8 +232,14 @@ variable "db_port" {
 
 variable "db_username" {
   type        = string
-  description = "Master username for the RDS instance"
+  description = "Master username for the RDS instance (password auth, used for DBA tasks only)"
   default     = "admin"
+}
+
+variable "db_app_username" {
+  type        = string
+  description = "Dedicated least-privilege DB user the app connects as via IAM authentication. Must be created in MySQL with: CREATE USER '<name>'@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';"
+  default     = "app_user"
 }
 
 variable "db_backup_retention_period" {

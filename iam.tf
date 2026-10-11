@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "rds_iam_auth" {
     actions = ["rds-db:connect"]
 
     resources = [
-      "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.main.resource_id}/${var.db_username}"
+      "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.main.resource_id}/${var.db_app_username}"
     ]
   }
 }

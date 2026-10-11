@@ -14,7 +14,7 @@ resource "aws_launch_template" "backend" {
   user_data = base64encode(templatefile("${path.module}/scripts/backend-userdata.sh", {
     DB_HOST    = aws_db_instance.main.address
     DB_PORT    = var.db_port
-    DB_USER    = var.db_username
+    DB_USER    = var.db_app_username
     AWS_REGION = var.region
   }))
 
