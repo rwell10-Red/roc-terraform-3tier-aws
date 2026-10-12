@@ -16,6 +16,11 @@ on:
         type: choice
         options:
           - destroy
+      confirm:
+        description: "Type 'destroy-dev' EXACTLY to confirm teardown (safety guard)"
+        required: true
+        default: ""
+        type: string
 
 env:
   TF_VERSION: "1.16.5"
@@ -157,13 +162,27 @@ jobs:
   # and to tear the stack down to stop billing.
   destroy:
     name: Destroy
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    # Guard 1: only on manual dispatch with action=destroy AND the exact
+    # confirmation phrase. Guard 2 (recommended): add a Required Reviewer to the
+    # 'dev' environment in repo Settings so this job also waits for approval.
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.action == 'destroy' &&
+      github.event.inputs.confirm == 'destroy-dev'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
     environment: dev
     steps:
+      - name: Confirm teardown intent
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "destroy-dev" ]; then
+            echo "::error::Confirmation phrase did not match 'destroy-dev'. Aborting."
+            exit 1
+          fi
+          echo "Confirmation accepted. Proceeding with destroy of the dev stack."
+
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
