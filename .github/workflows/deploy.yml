@@ -7,9 +7,21 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Manual action (destroy tears down the dev stack)"
+        required: true
+        default: "destroy"
+        type: choice
+        options:
+          - destroy
 
 env:
   TF_VERSION: "1.16.5"
+  # Environment to operate on for manual (workflow_dispatch) runs.
+  # Push runs use github.ref_name (the branch); manual runs use this.
+  TARGET_ENV: "dev"
 
 jobs:
   lint:
@@ -72,6 +84,8 @@ jobs:
     needs: lint
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    # NOTE: validate/lint only run on push. On manual workflow_dispatch,
+    # deploy/destroy run directly (they do not hard-require validate).
     permissions:
       id-token: write
       contents: read
@@ -137,3 +151,39 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -var-file="environments/${{ vars.ENVIRONMENT }}.tfvars" -auto-approve
+
+  # Manual-only teardown. Runs the deploy role so its Delete* actions are
+  # captured by CloudTrail (used for IAM Access Analyzer policy generation),
+  # and to tear the stack down to stop billing.
+  destroy:
+    name: Destroy
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c # v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="key=${{ env.TARGET_ENV }}/terraform.tfstate"
+
+      - name: Terraform Destroy
+        run: terraform destroy -var-file="environments/${{ env.TARGET_ENV }}.tfvars" -auto-approve
