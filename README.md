@@ -2,13 +2,12 @@
 
 [![Terraform CI/CD](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml/badge.svg)](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml)
 
-[![Terraform CI/CD](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml/badge.svg)](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml)
 
 Production-style, multi-environment (dev / uat / prod) 3-tier architecture on AWS,
 provisioned with Terraform and deployed through a GitHub Actions CI/CD pipeline.
 
-**Tooling:** Terraform · AWS (VPC, ALB, EC2 ASG, RDS MySQL, S3, IAM, EICE) ·
-GitHub Actions · TFLint · Checkov · Gitleaks · SonarCloud · OIDC (keyless AWS auth)
+**Tooling:** Terraform Â· AWS (VPC, ALB, EC2 ASG, RDS MySQL, S3, IAM, EICE) Â·
+GitHub Actions Â· TFLint Â· Checkov Â· Gitleaks Â· SonarCloud Â· OIDC (keyless AWS auth)
 
 ## Architecture
 
@@ -16,7 +15,7 @@ GitHub Actions · TFLint · Checkov · Gitleaks · SonarCloud · OIDC (keyless A
 flowchart TB
     user([Internet User])
 
-    subgraph AWS["AWS Account — Region us-east-1"]
+    subgraph AWS["AWS Account â€” Region us-east-1"]
         subgraph VPC["VPC (per env: dev 10.0 / uat 10.1 / prod 10.2)"]
             subgraph PUB["Public Subnets (2 AZs)"]
                 ALB["Application<br/>Load Balancer"]
@@ -30,7 +29,7 @@ flowchart TB
                 RDS[("RDS MySQL<br/>auto-generated password")]
             end
         end
-        S3[("S3 — Terraform state<br/>KMS encrypted + locking")]
+        S3[("S3 â€” Terraform state<br/>KMS encrypted + locking")]
     end
 
     user --> ALB
@@ -41,12 +40,12 @@ flowchart TB
     EICE -.private access.-> BEASG
 ```
 
-- **Networking** — VPC with public + private (app/db) subnets across two AZs
-- **Front-end tier** — Auto Scaling Group behind an Application Load Balancer
-- **Back-end tier** — Auto Scaling Group in private subnets, CPU target-tracking scaling
-- **Database tier** — RDS MySQL in isolated private DB subnets, auto-generated master password
-- **Access** — EC2 Instance Connect Endpoint (EICE) for private instance access (no bastion)
-- **State** — Remote S3 backend with KMS encryption, versioning, and state locking
+- **Networking** â€” VPC with public + private (app/db) subnets across two AZs
+- **Front-end tier** â€” Auto Scaling Group behind an Application Load Balancer
+- **Back-end tier** â€” Auto Scaling Group in private subnets, CPU target-tracking scaling
+- **Database tier** â€” RDS MySQL in isolated private DB subnets, auto-generated master password
+- **Access** â€” EC2 Instance Connect Endpoint (EICE) for private instance access (no bastion)
+- **State** â€” Remote S3 backend with KMS encryption, versioning, and state locking
 
 ## Highlights
 
@@ -91,7 +90,7 @@ The `bootstrap/` module creates an encrypted, versioned S3 bucket for Terraform 
 cd bootstrap
 terraform init
 terraform apply
-# Note the "bucket_name" output — you'll use it in the next step.
+# Note the "bucket_name" output â€” you'll use it in the next step.
 cd ..
 ```
 
@@ -129,18 +128,18 @@ To enable it in your repo, configure the following under
 **Settings -> Secrets and variables -> Actions**:
 
 **Secrets**
-- `AWS_ROLE_ARN` — IAM role ARN in your account that trusts GitHub's OIDC provider
-- `SONAR_TOKEN` — SonarCloud token (optional; remove the SonarCloud step if unused)
+- `AWS_ROLE_ARN` â€” IAM role ARN in your account that trusts GitHub's OIDC provider
+- `SONAR_TOKEN` â€” SonarCloud token (optional; remove the SonarCloud step if unused)
 
 **Variables**
-- `AWS_REGION` — e.g. `us-east-1`
-- `ENVIRONMENT` — `dev`, `uat`, or `prod`
+- `AWS_REGION` â€” e.g. `us-east-1`
+- `ENVIRONMENT` â€” `dev`, `uat`, or `prod`
 
-> The pipeline authenticates to AWS via OIDC role assumption — no long-lived
+> The pipeline authenticates to AWS via OIDC role assumption â€” no long-lived
 > access keys are stored. You must create the IAM OIDC identity provider and a
 > role with a trust policy for `token.actions.githubusercontent.com` in your account.
 
 ## Notes
 
 - `*.tfvars` are gitignored except the files under `environments/` (intentionally committed, no secrets).
-- The RDS master password is generated at apply time and surfaced through Terraform state only — keep your state bucket private.
+- The RDS master password is generated at apply time and surfaced through Terraform state only â€” keep your state bucket private.
