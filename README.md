@@ -2,10 +2,44 @@
 
 [![Terraform CI/CD](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml/badge.svg)](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml)
 
+[![Terraform CI/CD](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml/badge.svg)](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml)
+
 Production-style, multi-environment (dev / uat / prod) 3-tier architecture on AWS,
 provisioned with Terraform and deployed through a GitHub Actions CI/CD pipeline.
 
+**Tooling:** Terraform · AWS (VPC, ALB, EC2 ASG, RDS MySQL, S3, IAM, EICE) ·
+GitHub Actions · TFLint · Checkov · Gitleaks · SonarCloud · OIDC (keyless AWS auth)
+
 ## Architecture
+
+```mermaid
+flowchart TB
+    user([Internet User])
+
+    subgraph AWS["AWS Account — Region us-east-1"]
+        subgraph VPC["VPC (per env: dev 10.0 / uat 10.1 / prod 10.2)"]
+            subgraph PUB["Public Subnets (2 AZs)"]
+                ALB["Application<br/>Load Balancer"]
+                EICE["EC2 Instance<br/>Connect Endpoint"]
+            end
+            subgraph APP["Private App Subnets (2 AZs)"]
+                FEASG["Front-end ASG<br/>(Auto Scaling)"]
+                BEASG["Back-end ASG<br/>(Auto Scaling)"]
+            end
+            subgraph DB["Private DB Subnets (2 AZs)"]
+                RDS[("RDS MySQL<br/>auto-generated password")]
+            end
+        end
+        S3[("S3 — Terraform state<br/>KMS encrypted + locking")]
+    end
+
+    user --> ALB
+    ALB --> FEASG
+    FEASG --> BEASG
+    BEASG --> RDS
+    EICE -.private access.-> FEASG
+    EICE -.private access.-> BEASG
+```
 
 - **Networking** — VPC with public + private (app/db) subnets across two AZs
 - **Front-end tier** — Auto Scaling Group behind an Application Load Balancer
