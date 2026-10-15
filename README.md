@@ -1,4 +1,6 @@
-﻿# 3-Tier AWS Infrastructure (Terraform)
+# 3-Tier AWS Infrastructure (Terraform)
+
+[![Terraform CI/CD](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml/badge.svg)](https://github.com/rwell10-Red/roc-terraform-3tier-aws/actions/workflows/deploy.yml)
 
 Production-style, multi-environment (dev / uat / prod) 3-tier architecture on AWS,
 provisioned with Terraform and deployed through a GitHub Actions CI/CD pipeline.
